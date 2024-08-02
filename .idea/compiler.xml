@@ -6,7 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Data-crawling-2024" />
+        <module name="tobacco-market" />
+        <module name="Second-hand-car" />
       </profile>
     </annotationProcessing>
   </component>

@@ -1,0 +1,66 @@
+{
+  "Parameter": [
+    {
+      "DBDriver": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+      "DBConnectionStr": "jdbc:sqlserver://localhost:1433;",
+      "DBName": "DB_yiche_ryk_20240531",
+      "DBUserName": "sa",
+      "DBUserPass": "7777",
+      "EntityPath": "org.example.Entity.",
+      "EntityList": [
+        {
+          "EntityName": "Bean_brand_json",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_yiche_Brand_20240531"
+        },{
+          "EntityName": "Bean_model",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_yiche_Model_20240531"
+        },{
+          "EntityName": "Bean_version",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_yiche_Version_20240531"
+        },{
+          "EntityName": "Bean_configcolumn",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_Column_20240531"
+        },{
+          "EntityName": "Bean_version_config0421",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_yiche_Config_20240531"
+        },{
+          "EntityName": "Bean_config_chose",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_yiche_Config_chose_20240531"
+        }
+      ]
+    },
+    {
+      "DBDriver": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+      "DBConnectionStr": "jdbc:sqlserver://localhost:1433;",
+      "DBName": "DB_易车口碑ryk_20240531",
+      "DBUserName": "sa",
+      "DBUserPass": "7777",
+      "EntityPath": "org.example.Entity.",
+      "EntityList": [
+        {
+          "EntityName": "Bean_model",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_yiche_Model"
+        },{
+          "EntityName": "Bean_Dianping_Pages",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_yiche_pages"
+        },{
+          "EntityName": "Bean_Dianping_detail_page",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_detaile_pages"
+        },{
+          "EntityName": "Bean_DianPingContent",
+          "PrimaryKey": "C_ID",
+          "TableName": "t_yiche_dianping_new"
+        }
+      ]
+    }
+  ]
+}
