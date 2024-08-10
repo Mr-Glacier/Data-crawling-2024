@@ -42,6 +42,6 @@ public class YouXinPaiMain {
         // jwt_token 规则,前面 Base64,后面加密使用的是 HS256  密钥 10293
 
         String content = controllerYouXinPai.methodDownFirstHtml(firstUrl,parmStr);
-        saveUntil.Method_SaveFile(mainPath+"firstHtml.html",content);
+//        saveUntil.Method_SaveFile(mainPath+"firstHtml.html",content);
     }
 }

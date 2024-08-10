@@ -3,46 +3,50 @@ package zedata.com;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonObject;
-import zedata.com.until.JwtUntil;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.http.Header;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("Hello world!");
-//        String date = String.valueOf(System.currentTimeMillis());
-//        // 输出yyyyMMdd 的时间
-//        date = date.substring(0, 8);
-//        String currentDateStr = DateUtil.format(DateUtil.date(), "yyyyMMdd_HH");
-//        System.out.println(currentDateStr);
+
+        String firstUrl = "https://www.youxinpai.com/trade/getTradeList";
 
 
-//        String main = "";
-//        //
-//        AnalsistToken();
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(firstUrl);
 
-        String token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiU0xCanRmc2gteGdLajItT1BGSVQtMm9LbG1iU25JZWFZc084IiwiaWF0IjoxNzIyOTU4MDE2LCJleHAiOjE3MjI5NTk4MTZ9.Y3BG2xgcEkN98dcEFKNFCsRSaNK9Lf1k3O1A_bnUQ1Q";
-        String[] split = token.split("\\.");
-        System.out.println("头："+ split[0]);
-        System.out.println("体："+ split[1]);
-        System.out.println("尾："+ split[2]);
-        System.out.println("解密 base64");
-        Base64.Decoder decoder = Base64.getDecoder();
-        System.out.println("头："+ new String(decoder.decode(split[0])));
-        System.out.println("体："+ new String(decoder.decode(split[1])));
-        System.out.println("尾："+ new String(Base64.getUrlDecoder().decode(split[2])));
+            request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
+            request.setHeader("Referer", "https://www.youxinpai.com/trade");
+            request.setHeader("Content-Type", "application/json; charset=utf-8");
+            request.setHeader("Cookie", "xxzlclientid=7a923008-bbf8-4b78-b1f2-1717568308111; xxzlxxid=pfmxwtDfh9JN7gAwBs330bDz99xCin6xXlLaiBRy0BNp5uBTsaB9cJPDll/1KrKTlE4J; id58=CocLxWZidCqUywmePIHHAg==; xxzlbbid=pfmbM3wxMDI5M3wxLjcuMHwxNzIzMTgyMDQ4MjIxfEFxQnkwc01xSGlwUmtDekQrbE9tSGhmTmRJNXMzT2h1N2Iza2NPSllSaFE9fGQ4YTY5NTExMDRhYWVlZWZkNjkwZTNmZTk1ZWM3ZTY0XzE3MjMxNzI5ODA0ODBfNWFlYzc2YzRlOTcxNDg1MjhiMzUyM2JmMmUzM2Y0MTJfMTk3NDQ0NzIwMXxiY2NmZDIxYzAxM2U0MjI5MWE2NmIwOGI1OTdkNDQwNl8xNzIzMTgyMDQ3NDI0XzEzOA==; csrfToken_key=_1n9o0kbmXhT067g_o8xe7bq; csrfToken=Y9JZsBYL-bQxkGxpwdlV_CuYaeIvyjSMumwY; jwt_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiWTlKWnNCWUwtYlF4a0d4cHdkbFZfQ3VZYWVJdnlqU011bXdZIiwiaWF0IjoxNzIzMTg1MjA2LCJleHAiOjE3MjMxODcwMDZ9.Thq-BCD1rd6v5WiMfTmbV1rvggmOIx8KQFgr7z2dJmI");
+            request.setHeader("priority", "u=1, i");
+            request.setHeader("Origin", "https://www.youxinpai.com");
 
+            // 1. 传递 JSON 数据
+            String parmStr = "{\"entities\":\"{\\\"req\\\":{\\\"cityIds\\\":[],\\\"serialIds\\\":[],\\\"appearanceGrades\\\":[],\\\"skeletonGrades\\\":[],\\\"interiorGrades\\\":[],\\\"emissionStandards\\\":[],\\\"carPriceLevel\\\":[],\\\"carYearLevel\\\":[],\\\"carGearbox\\\":[],\\\"carOwners\\\":[],\\\"carUseTypes\\\":[],\\\"fuelTypes\\\":[],\\\"conditionPriceType\\\":[],\\\"transferCounts\\\":[],\\\"startPriceType\\\":[],\\\"isNotBubbleCar\\\":false,\\\"isNotBurnCar\\\":false,\\\"isNotSmallReport\\\":false,\\\"orderFields\\\":10},\\\"page\\\":[{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"pc_circle\\\"},{\\\"page\\\":1,\\\"pageSize\\\":15,\\\"pageTab\\\":\\\"immediately\\\"},{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"delay\\\"},{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"fixedPrice\\\"},{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"benz\\\"},{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"attention\\\"}]}\"}";
+            StringEntity stringEntity = new StringEntity(parmStr, "UTF-8");
+            request.setEntity(stringEntity);
 
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                System.out.println("Response Code: " + response.getStatusLine().getStatusCode());
+
+                Header[] headers = response.getAllHeaders();
+                for (Header header : headers) {
+                    System.out.println(header.getName() + ": " + header.getValue());
+                }
+
+                String responseBody = EntityUtils.toString(response.getEntity());
+                System.out.println("Response Body: " + responseBody);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
