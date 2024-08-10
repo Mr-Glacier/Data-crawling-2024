@@ -4,9 +4,12 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import zedata.com.controller.ControllerYouXinPai;
+import zedata.com.entity.BeanYouXinPaiCarInfo;
 import zedata.com.until.HelpCreateFile;
 import zedata.com.until.SaveUntil;
+import zedata.com.until.SentEmail;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -18,6 +21,10 @@ import java.util.concurrent.TimeUnit;
  * @apiNote 优信拍定时任务
  */
 public class YouXinPaiMainTime {
+
+    /**
+     * 在外层定义 部分参数
+     */
 
     public static void main(String[] args) {
         // 创建一个调度线程池，大小为1
@@ -59,6 +66,8 @@ public class YouXinPaiMainTime {
                     "csrfToken_key=csrfTokenKeyStr; " +
                     "csrfToken=csrfTokenStr; " +
                     "jwt_token=JwtTokenStr";
+            // 构造 数据汇集
+            List<BeanYouXinPaiCarInfo> beanList = new ArrayList<>();
 
             try{
                 String currentDateStr = DateUtil.format(DateUtil.date(), "yyyyMMdd_HH");
@@ -80,6 +89,8 @@ public class YouXinPaiMainTime {
                             break;
                         }else {
                             saveUntil.Method_SaveFile(savePath+pageNum+".txt",responseBody);
+                            List<BeanYouXinPaiCarInfo> oneBeanList =  controllerYouXinPai.methodAnalysisData(responseBody,currentDateStr);
+                            beanList.addAll(oneBeanList);
                             csrfTokenKeyStr = map.get("csrfTokenKey");
                             csrfTokenStr = map.get("csrfToken");
                             jwtTokenStr = map.get("jwtToken");
@@ -89,13 +100,19 @@ public class YouXinPaiMainTime {
                         break;
                     }
                 }
+                int insertNum = controllerYouXinPai.methodInsertData(beanList);
+                saveUntil.Method_SaveFile_True(LogPath+"youxinpaiSUCCESS.txt", "本次共有 --->"+pageNum+"页数据\n" +
+                        "本次入库数据共 --->"+insertNum+" 条数据\n" +
+                        "===========================================================================================================");
             }catch (Exception e){
                 e.printStackTrace();
+                // 设置异常通知器
+                SentEmail.Method_SentEmail(0,e.getMessage());
             }
         };
 
-        // 初始延迟为0，之后每4小时执行一次
-        scheduler.scheduleAtFixedRate(task, 0, 4, TimeUnit.HOURS);
+        // 初始延迟为0，之后每4小时执行一次 (优信拍的单个Token 过期时间未知 ,初步按照cookie 中设计的值来说 ,应该是4个小时) 设置定时时间为 3 个小时
+        scheduler.scheduleAtFixedRate(task, 0, 3, TimeUnit.HOURS);
 
         // 添加一个钩子在应用终止时关闭调度器
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

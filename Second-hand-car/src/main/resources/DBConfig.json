@@ -12,6 +12,10 @@
           "EntityName": "BeanCheYiPaiCarInfo",
           "PrimaryKey": "C_ID",
           "TableName": "T_CHEYIPAI"
+        },{
+          "EntityName": "BeanYouXinPaiCarInfo",
+          "PrimaryKey": "C_ID",
+          "TableName": "t_youxinpai"
         }
       ]
     }

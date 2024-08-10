@@ -3,6 +3,7 @@ package zedata.com.controller;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -10,19 +11,26 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import zedata.com.config.LoggingConfig;
+import zedata.com.dao.DaoFather;
+import zedata.com.entity.BeanCheYiPaiCarInfo;
+import zedata.com.entity.BeanYouXinPaiCarInfo;
 import zedata.com.until.SaveUntil;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Mr-Glacier
  * @ApiNote  优信拍数据获取
  */
 public class ControllerYouXinPai {
+
+    private static final Logger logger = LogManager.getLogger(LoggingConfig.class);
 
 
     /**
@@ -49,13 +57,13 @@ public class ControllerYouXinPai {
             StringEntity stringEntity = new StringEntity(parmStr, "UTF-8");
             request.setEntity(stringEntity);
             try (CloseableHttpResponse response = httpClient.execute(request)) {
-                System.out.println("Response Code: " + response.getStatusLine().getStatusCode());
+                logger.info("请求响应状态码:{}", response.getStatusLine().getStatusCode());
                 map.remove("httpStatus");
                 map.put("httpStatus", String.valueOf(response.getStatusLine().getStatusCode()));
                 Header[] headers = response.getAllHeaders();
                 for (Header header : headers) {
                     if ("Set-Cookie".equals(header.getName())){
-                        System.out.println(header.getValue());
+                        logger.info("cookie:{}", header.getValue());
                     }
                     String waitDealStr = header.getValue();
                     // 待处理字符串
@@ -77,76 +85,97 @@ public class ControllerYouXinPai {
                     map.put("responseBody", responseBody);
                 }
             }
-
         }catch (Exception e) {
-            e.printStackTrace();
+            logger.error("请求失败", e);
         }
         return map;
     }
 
 
     /**
-     * 优信拍 流程控制方法
+     * 解析所有的数据并且返回本次解析的数据
      */
-    public void methodProcessControl(String firstUrl) {
-        SaveUntil saveUntil = new SaveUntil();
-
-        String mainSavePath = "";
-
-
-
-        // 拼接Cookie-->存在几个 过期时间较长的字段,采取记录形式
-        // 1.xxzlclientid 过期时间 2025-08-04T
-        String xxzlclientid = "7a923008-bbf8-4b78-b1f2-1717568308111";
-        // 2. xxzlxxid 过期时间 2025-08-04T
-        String xxzlxxid = "pfmxwtDfh9JN7gAwBs330bDz99xCin6xXlLaiBRy0BNp5uBTsaB9cJPDll/1KrKTlE4J";
-        // 3. xxzlbbid 过期时间 2025-08-04T
-        String xxzlbbid = "pfmbM3wxMDI5M3wxLjcuMHwxNzIyNzg0MTM2NTcwfDVwaEo4NlNXaWcrV1pSSzFlLytoTkdrZEsvbS9lK0UweCtHUWxSVHU0eG89fDNkNTdiMmQwNzI2NmU4N2MxNjcxMTFkZmRiMjAwZmRmXzE3MjI3ODQxMzMxMzdfOTRkYjQ0OTJkNDA3NDhhODkwNzlmOWVmMzQ5M2Q2OGRfMTk3NDQ0NzIwMXwwN2ExMmI0YThmZWEyMWMwMTYxZjM3OWI4ODczMjVmNF8xNzIyNzg0MTM1MDIzXzI1Ng==";
-        // 4. id58 过期时间很长
-        String id58 = "CocLxWZidCqUywmePIHHAg==";
-
-        String csrfTokenKeyStr = "csrfTokenKeyStr";
-        String csrfTokenStr = "csrfTokenStr";
-        String jwtTokenStr = "JwtTokenStr";
-
-        // cookie 模板
-        String tokenStrModel = "xxzlclientid="+xxzlclientid+"; " +
-                "xxzlxxid="+xxzlxxid+"; " +
-                "id58="+id58+"; " +
-                "xxzlbbid="+xxzlbbid+"; " +
-                "csrfToken_key=csrfTokenKeyStr; " +
-                "csrfToken=csrfTokenStr; " +
-                "jwt_token=JwtTokenStr";
-
-        int pageNum = 1;
-//        while (true){
-//            String parmStr = "{\"entities\":\"{\\\"req\\\":{\\\"cityIds\\\":[],\\\"serialIds\\\":[],\\\"appearanceGrades\\\":[],\\\"skeletonGrades\\\":[],\\\"interiorGrades\\\":[],\\\"emissionStandards\\\":[],\\\"carPriceLevel\\\":[],\\\"carYearLevel\\\":[],\\\"carGearbox\\\":[],\\\"carOwners\\\":[],\\\"carUseTypes\\\":[],\\\"fuelTypes\\\":[],\\\"conditionPriceType\\\":[],\\\"transferCounts\\\":[],\\\"startPriceType\\\":[],\\\"isNotBubbleCar\\\":false,\\\"isNotBurnCar\\\":false,\\\"isNotSmallReport\\\":false,\\\"orderFields\\\":10},\\\"page\\\":[{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"pc_circle\\\"},{\\\"page\\\":" + pageNum + ",\\\"pageSize\\\":15,\\\"pageTab\\\":\\\"immediately\\\"},{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"delay\\\"},{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"fixedPrice\\\"},{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"benz\\\"},{\\\"page\\\":1,\\\"pageSize\\\":2,\\\"pageTab\\\":\\\"attention\\\"}]}\"}";
-//            String tokenStr = tokenStrModel.replace("csrfTokenKeyStr",csrfTokenKeyStr)
-//                    .replace("csrfTokenStr",csrfTokenStr)
-//                    .replace("JwtTokenStr",jwtTokenStr);
-//            Map<String,String> map = postRequestByHttpClient(firstUrl, parmStr, tokenStr);
-//            if ("200".equals(map.get("httpStatus"))){
-//                String responseBody = map.get("responseBody");
-//                JSONObject jsonObject = JSONObject.parseObject(responseBody).getJSONObject("data").getJSONObject("entities").getJSONObject("immediately");
-//                JSONArray jsonArray = jsonObject.getJSONArray("auctionListEntity");
-//                if (jsonArray.size()==0){
-//                    break;
-//                }else {
-//                    saveUntil.Method_SaveFile(savePath+pageNum+".txt",responseBody);
-//                    csrfTokenKeyStr = map.get("csrfTokenKey");
-//                    csrfTokenStr = map.get("csrfToken");
-//                    jwtTokenStr = map.get("jwtToken");
-//                }
-//            }else{
-//                break;
-//            }
-//        }
+    public List<BeanYouXinPaiCarInfo> methodAnalysisData(String data,String currentTime) {
+        List<BeanYouXinPaiCarInfo> beanList = new ArrayList<>();
+        JSONObject jsonObject = JSONObject.parseObject(data).getJSONObject("data").getJSONObject("immediately");
+        JSONArray dataArray =   jsonObject.getJSONArray("auctionListEntity");
+        if (dataArray.size() > 0){
+            for (int i = 0; i < dataArray.size(); i++) {
+                BeanYouXinPaiCarInfo beanYouXinPaiCarInfo = new BeanYouXinPaiCarInfo();
+                JSONObject oneCarJson = dataArray.getJSONObject(i);
+                beanYouXinPaiCarInfo.setC_wareHouseTime(currentTime);
+                beanYouXinPaiCarInfo.setC_auctionStatus(oneCarJson.getString("auctionStatus"));
+                beanYouXinPaiCarInfo.setC_auctionTitle(oneCarJson.getString("auctionTitle"));
+                beanYouXinPaiCarInfo.setC_auctionType(oneCarJson.getString("auctionType"));
+                beanYouXinPaiCarInfo.setC_bidEndTime(oneCarJson.getString("bidEndTime"));
+                beanYouXinPaiCarInfo.setC_bidStartTime(oneCarJson.getString("bidStartTime"));
+                beanYouXinPaiCarInfo.setC_carCityName(oneCarJson.getString("carCityName"));
+                beanYouXinPaiCarInfo.setC_carColor(oneCarJson.getString("carColor"));
+                beanYouXinPaiCarInfo.setC_carPlaceCity(oneCarJson.getString("carPlaceCity"));
+                beanYouXinPaiCarInfo.setC_channelCount(oneCarJson.getString("channelCount"));
+                beanYouXinPaiCarInfo.setC_channelTitle(oneCarJson.getString("channelTitle"));
+                beanYouXinPaiCarInfo.setC_cityId(oneCarJson.getString("cityId"));
+                beanYouXinPaiCarInfo.setC_conditionGradeSmall(oneCarJson.getString("conditionGradeSmall"));
+                beanYouXinPaiCarInfo.setC_currentIndex(oneCarJson.getString("currentIndex"));
+                beanYouXinPaiCarInfo.setC_currentPublishOrder(oneCarJson.getString("currentPublishOrder"));
+                beanYouXinPaiCarInfo.setC_energyType(oneCarJson.getString("energyType"));
+                beanYouXinPaiCarInfo.setC_hasVideo(oneCarJson.getString("hasVideo"));
+                beanYouXinPaiCarInfo.setC_sourceId(oneCarJson.getString("id"));
+                beanYouXinPaiCarInfo.setC_imgUrl(oneCarJson.getString("imgUrl"));
+                beanYouXinPaiCarInfo.setC_isAttention(oneCarJson.getString("isAttention"));
+                beanYouXinPaiCarInfo.setC_isNewPublish(oneCarJson.getString("isNewPublish"));
+                beanYouXinPaiCarInfo.setC_kilometers(oneCarJson.getString("kilometers"));
+                beanYouXinPaiCarInfo.setC_labelColor(oneCarJson.getString("labelColor"));
+                beanYouXinPaiCarInfo.setC_labelName(oneCarJson.getString("labelName"));
+                beanYouXinPaiCarInfo.setC_mileage(oneCarJson.getString("mileage"));
+                beanYouXinPaiCarInfo.setC_parkingNum(oneCarJson.getString("parkingNum"));
+                beanYouXinPaiCarInfo.setC_power(oneCarJson.getString("power"));
+                beanYouXinPaiCarInfo.setC_pricesStart(oneCarJson.getString("pricesStart"));
+                beanYouXinPaiCarInfo.setC_publishType(oneCarJson.getString("publishType"));
+                beanYouXinPaiCarInfo.setC_redCar(oneCarJson.getString("redCar"));
+                beanYouXinPaiCarInfo.setC_reportViewType(oneCarJson.getString("reportViewType"));
+                beanYouXinPaiCarInfo.setC_reservePrice(oneCarJson.getString("reservePrice"));
+                beanYouXinPaiCarInfo.setC_standardCode(oneCarJson.getString("standardCode"));
+                beanYouXinPaiCarInfo.setC_startPriceType(oneCarJson.getString("startPriceType"));
+                beanYouXinPaiCarInfo.setC_totalGrade(oneCarJson.getString("totalGrade"));
+                beanYouXinPaiCarInfo.setC_year(oneCarJson.getString("year"));
+                beanYouXinPaiCarInfo.setC_crykey(oneCarJson.getString("crykey"));
+                beanList.add(beanYouXinPaiCarInfo);
+            }
+        }
+        return beanList;
     }
 
+    /**
+     * 对于本次数据进行去重入库
+     */
+    public int methodInsertData(List<BeanYouXinPaiCarInfo> beanList) {
+        // 初始化计数器
+        int count = 0;
+        // 首先对于本次数据 内部重复值进行去除
+        List<BeanYouXinPaiCarInfo> distinctBeanList = new ArrayList<>(beanList.stream().collect(Collectors.toMap(
+                        BeanYouXinPaiCarInfo::getC_sourceId,
+                        beanCheYiPaiCarInfo -> beanCheYiPaiCarInfo,
+                        (bean1, bean2) -> bean1))
+                .values());
 
+        // 然后查询得到数据库中所有的数据 C_sourceId List
+        List<String> sourceIdList = new ArrayList<>();
+        DaoFather daoFather = new DaoFather(0,2);
+        List<String> columnList = Collections.singletonList("C_sourceId");
+        for (Map<String,String> map : daoFather.methodFindFree(columnList)){
+            sourceIdList.add(map.get("C_sourceId"));
+        }
 
-
-
+        //如果 sourceId 不存在于数据中,则进行入库操作
+        for (BeanYouXinPaiCarInfo bean : distinctBeanList){
+            if (!sourceIdList.contains(bean.getC_sourceId())){
+                daoFather.MethodInsert(bean);
+                count++;
+            }
+        }
+        return count;
+    }
 
 
 
