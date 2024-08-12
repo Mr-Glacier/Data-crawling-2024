@@ -163,7 +163,7 @@ public class ControllerYouXinPai {
         List<String> sourceIdList = new ArrayList<>();
         DaoFather daoFather = new DaoFather(0,2);
         List<String> columnList = Collections.singletonList("C_sourceId");
-        for (Map<String,String> map : daoFather.methodFindFree(columnList)){
+        for (Map<String,String> map : daoFather.methodFindFree(columnList,"")){
             sourceIdList.add(map.get("C_sourceId"));
         }
 

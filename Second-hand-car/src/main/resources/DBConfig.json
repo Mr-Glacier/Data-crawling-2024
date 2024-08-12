@@ -16,6 +16,48 @@
           "EntityName": "BeanYouXinPaiCarInfo",
           "PrimaryKey": "C_ID",
           "TableName": "t_youxinpai"
+        },{
+          "EntityName": "BeanDiYiCarCounty",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_DiYiCarCounty"
+        },{
+          "EntityName": "BeanDiYiCarSimpleInfo",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_DiYiCarSimpleInfo"
+        },{
+          "EntityName": "BeanDiYiCarDetailInfo",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_DiYiCarDetailInfo"
+        }
+      ]
+    },{
+      "DBDriver": "com.mysql.cj.jdbc.Driver",
+      "DBConnectionStr": "jdbc:mysql://localhost:3306/",
+      "DBName": "db_二手车_ryk_202408",
+      "DBUserName": "root",
+      "DBUserPass": "7777",
+      "EntityPath": "zedata.com.entity.",
+      "EntityList": [
+        {
+          "EntityName": "BeanCheYiPaiCarInfo",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_CHEYIPAI"
+        },{
+          "EntityName": "BeanYouXinPaiCarInfo",
+          "PrimaryKey": "C_ID",
+          "TableName": "t_youxinpai"
+        },{
+          "EntityName": "BeanDiYiCarCounty",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_DiYiCarCounty"
+        },{
+          "EntityName": "BeanDiYiCarSimpleInfo",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_DiYiCarSimpleInfo"
+        },{
+          "EntityName": "BeanDiYiCarDetailInfo",
+          "PrimaryKey": "C_ID",
+          "TableName": "T_DiYiCarDetailInfo"
         }
       ]
     }

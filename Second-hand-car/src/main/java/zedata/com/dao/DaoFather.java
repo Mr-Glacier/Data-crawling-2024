@@ -202,7 +202,7 @@ public class DaoFather {
     /**
      * 自由查询
      */
-    public List<Map<String,String>> methodFindFree(List<String> columnList){
+    public List<Map<String,String>> methodFindFree(List<String> columnList,String queryCondition){
         List<Map<String,String>> beanList = new ArrayList<>();
         try{
             // 拼接Sql语句
@@ -210,7 +210,7 @@ public class DaoFather {
             for (String s : columnList) {
                 column.append(s).append(",");
             }
-            String sql = "Select "+column.substring(0,column.length()-1)+" from "+this.TableName;
+            String sql = "Select "+column.substring(0,column.length()-1)+" from "+this.TableName + queryCondition;
             MethodCreateSomeObject();
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()){
@@ -227,6 +227,32 @@ public class DaoFather {
         }
         return beanList;
     }
+
+
+    public void methodUpdateDiYiCountyDetail(int C_ID,String pageNum){
+        String sql = "update "+this.TableName+" set C_downState = '是'  where C_ID = "+C_ID;
+        Method_IUD(sql);
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+        String time = df.format(new Date());
+        String sql1 = "update "+this.TableName+" set C_downTime = '"+time+"'  where C_ID  = "+C_ID;
+        Method_IUD(sql1);
+
+        String sql2 = "update "+this.TableName+" set C_countyPage = '"+pageNum+"'  where C_ID  = "+C_ID;
+        Method_IUD(sql2);
+
+    }
+
+
+    public void methodUpdateStateTime(int C_ID){
+        String sql = "update "+this.TableName+" set C_downState = '是'  where C_ID = "+C_ID;
+        Method_IUD(sql);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+        String time = df.format(new Date());
+        String sql1 = "update "+this.TableName+" set C_downTime = '"+time+"'  where C_ID  = "+C_ID;
+        Method_IUD(sql1);
+    }
+
 
 
 }
