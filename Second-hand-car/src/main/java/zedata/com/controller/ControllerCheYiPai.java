@@ -249,7 +249,7 @@ public class ControllerCheYiPai {
         DaoFather daoFather = new DaoFather(0,0);
         // 仅仅查询 一个字段的List
         List<String> columnList = Collections.singletonList("C_goodsId");
-        List<Map<String,String>> list = daoFather.methodFindFree(columnList);
+        List<Map<String,String>> list = daoFather.methodFindFree(columnList,"");
         List<String> storeCodeList = list.stream().map(map -> map.get("C_goodsId")).collect(Collectors.toList());
 
 
